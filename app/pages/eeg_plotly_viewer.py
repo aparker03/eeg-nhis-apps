@@ -2,9 +2,11 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 import os
-from huggingface_hub import hf_hub_download
+from huggingface_hub import hf_hub_download, list_repo_files
 
 HF_REPO = "aparker03/eeg-csv"
+DATA_DIR = "data/eeg_csv"
+os.makedirs(DATA_DIR, exist_ok=True)
 
 # --- EEG channel descriptions ---
 CHANNEL_INFO = {
@@ -41,15 +43,14 @@ CHANNEL_INFO = {
 st.set_page_config(page_title="EEG Plotly Viewer", layout="wide")
 st.title("🧠 EEG Viewer (Plotly Interactive)")
 
-# --- Load files ---
-DATA_DIR = "data/eeg_csv"
-csv_files = [f for f in os.listdir(DATA_DIR) if f.endswith(".csv")]
+# --- List files from Hugging Face ---
+csv_files = [f for f in list_repo_files(repo_id=HF_REPO, repo_type="dataset") if f.endswith(".csv")]
 
 if not csv_files:
-    st.warning("No EEG CSV files found in `data/eeg_csv/`.")
+    st.warning("No EEG CSV files found in the remote Hugging Face repo.")
     st.stop()
 
-# --- Extract available subjects ---
+# --- Extract subjects ---
 subject_ids = sorted({f.split("_")[0].replace("sub-", "") for f in csv_files})
 
 # --- UI controls ---
@@ -67,10 +68,9 @@ task_str = task_map[selected_task]
 filename = f"{subj_str}_{session_str}_{task_str}.csv"
 file_path = os.path.join(DATA_DIR, filename)
 
-# --- Load + plot ---
-# If file not found locally, try downloading from Hugging Face
+# --- Download from Hugging Face if missing locally ---
 if not os.path.exists(file_path):
-    with st.spinner(f"📡 Downloading {filename} from Hugging Face..."):
+    with st.spinner(f"📡 Downloading `{filename}` from Hugging Face..."):
         try:
             downloaded = hf_hub_download(
                 repo_id=HF_REPO,
@@ -81,13 +81,15 @@ if not os.path.exists(file_path):
             )
             file_path = downloaded
         except Exception as e:
-            st.error(f"Failed to retrieve `{filename}` from Hugging Face: {e}")
+            st.error(f"❌ Failed to retrieve `{filename}` from Hugging Face:\n\n{e}")
             st.stop()
 
+# --- Load data ---
 df = pd.read_csv(file_path)
 time_col = "Time"
 eeg_channels = [col for col in df.columns if col != time_col]
 
+# --- UI: channel selection ---
 selected_channels = st.multiselect(
     "🎚️ Select EEG channels to plot:", eeg_channels, default=eeg_channels[:5]
 )
@@ -100,6 +102,7 @@ with st.expander("ℹ️ What do the EEG channels mean?"):
     else:
         st.markdown("Select a channel above to see its meaning.")
 
+# --- Plotting ---
 if selected_channels:
     fig = go.Figure()
     for ch in selected_channels:
