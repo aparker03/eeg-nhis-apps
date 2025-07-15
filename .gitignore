@@ -1,0 +1,21 @@
+# Virtual environment
+venv/
+
+# Jupyter Notebook checkpoints
+**/.ipynb_checkpoints/
+
+# Streamlit cache
+.streamlit/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# System files
+.DS_Store
+
+# Ignore raw EEG data
+data/raw/eeg/
+
+# Ignore eeg_csv data
+data/eeg_csv/
