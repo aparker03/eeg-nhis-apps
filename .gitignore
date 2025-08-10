@@ -1,3 +1,6 @@
+# Idea folder
+.idea/
+
 # Virtual environment
 venv/
 
@@ -14,8 +17,10 @@ __pycache__/
 # System files
 .DS_Store
 
-# Ignore raw EEG data
-data/raw/eeg/
+# Ignore raw EEG data, except specific files
+data/raw/eeg/*
+!data/raw/eeg/participants.json
+!data/raw/eeg/participants.tsv
 
 # Ignore eeg_csv data
 data/eeg_csv/
