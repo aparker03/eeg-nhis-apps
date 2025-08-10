@@ -26,8 +26,8 @@ from scipy import stats
 # -----------------------
 # Configuration / Paths
 # -----------------------
-EEG_PATH = Path("eeg-brfss-app/data/clean/eeg_summary.csv")
-NHIS_PATH = Path("eeg-brfss-app/data/clean/nhis_sleep_demo_clean.csv")
+EEG_PATH = Path("/data/clean/eeg_summary.csv")
+NHIS_PATH = Path("/data/clean/nhis_sleep_demo_clean.csv")
 
 # -----------------------
 # Utilities
@@ -352,3 +352,4 @@ st.markdown("""
 """)
 
 st.success("Done — try different metric pairings and groupings to explore conceptual relationships. If you paste the `head()` / column names from your CSVs I can adapt this further to show label mapping and nicer human-friendly names automatically.")
+
