@@ -5,15 +5,16 @@ import numpy as np
 
 st.set_page_config(page_title="Reaction Time Test", layout="centered")
 
-# Real data-based constants from your PVT analysis
+# Real data-based constants from your PVT analysis (unchanged)
+STREAMLIT_DELAY_CORRECTION = 200  # ms - subtracted from user's measured time only
 NORMAL_MEAN_RT = 319.2  # ms
 NORMAL_STD_RT = 29.7  # ms
 SLEEP_DEPRIVED_MEAN_RT = 327.4  # ms
 SLEEP_DEPRIVED_STD_RT = 85.0  # ms
 
 # Calculate delays for sleep deprived mode
-SLEEP_DEPRIVED_BASE_DELAY = (SLEEP_DEPRIVED_MEAN_RT - NORMAL_MEAN_RT) / 1000  # 0.0083 seconds
-SLEEP_DEPRIVED_EXTRA_VARIABILITY = (SLEEP_DEPRIVED_STD_RT - NORMAL_STD_RT) / 1000  # 0.0554 seconds
+SLEEP_DEPRIVED_BASE_DELAY = (SLEEP_DEPRIVED_MEAN_RT - NORMAL_MEAN_RT) / 1000  # seconds
+SLEEP_DEPRIVED_EXTRA_VARIABILITY = (SLEEP_DEPRIVED_STD_RT - NORMAL_STD_RT) / 1000  # seconds
 
 # Enhanced CSS that works in both light and dark modes
 custom_css = """
@@ -213,6 +214,17 @@ custom_css = """
     color: var(--data-text);
     font-weight: 600;
 }
+
+.correction-info {
+    background: var(--bg-info);
+    border: 1px solid var(--accent-color);
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-align: center;
+}
 </style>
 """
 
@@ -242,7 +254,7 @@ def get_realistic_sleep_deprived_delay():
 
 
 def get_percentile(reaction_time_ms, is_sleep_deprived):
-    """Calculate percentile based on your actual data distribution"""
+    """Calculate percentile based on your actual data distribution (using original values)"""
     if is_sleep_deprived:
         # Based on your sleep deprived data: mean=327.4, std=85.0
         z_score = (reaction_time_ms - SLEEP_DEPRIVED_MEAN_RT) / SLEEP_DEPRIVED_STD_RT
@@ -270,13 +282,18 @@ st.sidebar.header("⚙️ Settings")
 mode = st.sidebar.radio("Choose Mode", ["Normal", "Sleep-Deprived"])
 is_sleep = mode == "Sleep-Deprived"
 
-# Show data statistics in sidebar
+# Show data statistics in sidebar (original values)
 st.sidebar.subheader("📊 Real PVT Data")
 st.sidebar.metric("Normal Mean RT", f"{NORMAL_MEAN_RT:.1f} ms")
 st.sidebar.metric("Normal Std Dev", f"{NORMAL_STD_RT:.1f} ms")
 st.sidebar.metric("Sleep Deprived Mean", f"{SLEEP_DEPRIVED_MEAN_RT:.1f} ms")
 st.sidebar.metric("Sleep Deprived Std Dev", f"{SLEEP_DEPRIVED_STD_RT:.1f} ms")
 st.sidebar.metric("Mean Difference", f"{SLEEP_DEPRIVED_MEAN_RT - NORMAL_MEAN_RT:.1f} ms")
+
+# Add correction info to sidebar
+st.sidebar.markdown("---")
+st.sidebar.subheader("🔧 Correction Applied")
+st.sidebar.info(f"Scores adjusted by -{STREAMLIT_DELAY_CORRECTION}ms to match other platforms like Human Benchmark")
 
 # Main content wrapper
 if is_sleep:
@@ -293,6 +310,13 @@ st.markdown(f"""
 <strong>📈 Data-Driven Simulation:</strong> This test uses reaction time patterns from real participants in 
 {'sleep-deprived' if is_sleep else 'normal'} conditions. 
 {f'Sleep deprivation increases variability by {((SLEEP_DEPRIVED_STD_RT / NORMAL_STD_RT - 1) * 100):.0f}%!' if is_sleep else ''}
+</div>
+""", unsafe_allow_html=True)
+
+# Add correction notice
+st.markdown(f"""
+<div class="correction-info">
+⚡ Scores corrected by -{STREAMLIT_DELAY_CORRECTION}ms for accuracy vs other platforms
 </div>
 """, unsafe_allow_html=True)
 
@@ -398,8 +422,9 @@ elif st.session_state.state == "ready":
         if is_sleep:
             time.sleep(st.session_state.sleep_delay)
 
-        # Calculate reaction time
-        st.session_state.reaction_time = time.time() - st.session_state.start_time
+        # Calculate reaction time and apply correction
+        raw_reaction_time = time.time() - st.session_state.start_time
+        st.session_state.reaction_time = max(0.001, raw_reaction_time - (STREAMLIT_DELAY_CORRECTION / 1000))
 
         # Update statistics
         st.session_state.attempt_count += 1
@@ -485,4 +510,4 @@ if is_sleep:
 # Footer
 st.markdown("---")
 st.caption(
-    "💡 **Data Source:** Reaction time delays based on real PVT measurements from EEG study participants. Sleep-deprived mode shows the dramatic increase in response variability observed in actual research.")
+    f"💡 **Data Source:** Reaction time delays based on real PVT measurements from EEG study participants. Scores corrected by -{STREAMLIT_DELAY_CORRECTION}ms to account for Streamlit/browser latency.")
