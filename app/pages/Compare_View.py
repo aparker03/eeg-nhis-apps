@@ -125,6 +125,56 @@ nhis_suggested = suggest_columns(nhis_df, ["sleep", "hour", "rest", "trouble", "
 ordered_nhis = nhis_suggested + [c for c in nhis_numeric if c not in nhis_suggested]
 
 # Add friendly labels mapping
+friendly_labels = {
+    "n_channels": "Number of EEG Channels",
+    "duration_sec": "Recording Length (seconds)",
+    "sampling_rate": "EEG Sampling Rate (Hz)",
+    "theta_mean": "Average Theta Brainwave Power",
+    "alpha_mean": "Average Alpha Brainwave Power",
+    "beta_mean": "Average Beta Brainwave Power",
+    "Age": "Participant Age",
+    "PVT_item1_NS": "PVT Reaction Time – Item 1 (Normal Sleep)",
+    "PVT_item2_NS": "PVT Reaction Time – Item 2 (Normal Sleep)",
+    "PVT_item3_NS": "PVT Reaction Time – Item 3 (Normal Sleep)",
+    "PVT_item1_SD": "PVT Reaction Time – Item 1 (Sleep Deprived)",
+    "PVT_item2_SD": "PVT Reaction Time – Item 2 (Sleep Deprived)",
+    "PVT_item3_SD": "PVT Reaction Time – Item 3 (Sleep Deprived)",
+    "PANAS_P_NS": "Positive Mood Score (Normal Sleep)",
+    "PANAS_P_SD": "Positive Mood Score (Sleep Deprived)",
+    "PANAS_N_NS": "Negative Mood Score (Normal Sleep)",
+    "PANAS_N_SD": "Negative Mood Score (Sleep Deprived)",
+    "ATQ_NS": "Attention Control Score (Normal Sleep)",
+    "ATQ_SD": "Attention Control Score (Sleep Deprived)",
+    "SAI_NS": "Anxiety Score (Normal Sleep)",
+    "SAI_SD": "Anxiety Score (Sleep Deprived)",
+    "SSS_NS": "Sleepiness Scale (Normal Sleep)",
+    "SSS_SD": "Sleepiness Scale (Sleep Deprived)",
+    "KSS_NS": "Karolinska Sleepiness Score (Normal Sleep)",
+    "KSS_SD": "Karolinska Sleepiness Score (Sleep Deprived)",
+    "SleepDiary_item3_NS": "Sleep Diary – Time Asleep (Normal Sleep)",
+    "EQ": "Empathy Score",
+    "Buss_Perry": "Aggression Questionnaire Score",
+    "PSQI_GlobalScore": "Sleep Quality Score (Global)",
+    "PSQI_item1": "Sleep Quality – Component 1",
+    "PSQI_item2": "Sleep Quality – Component 2",
+    "PSQI_item3": "Sleep Quality – Component 3",
+    "PSQI_item4": "Sleep Quality – Component 4",
+    "PSQI_item5": "Sleep Quality – Component 5",
+    "PSQI_item6": "Sleep Quality – Component 6",
+    "PSQI_item7": "Sleep Quality – Component 7",
+    "SLPMED3_A": "Sleep Medication Use (CBD)",
+    "SLPMED2_A": "Sleep Medication Use (Over the Counter)",
+    "SLPMED1_A": "Sleep Medication Use (Doctor Prescribed)",
+    "SLPMEDINTRO_A": "Sleep Medication Introduction Question",
+    "SLPSTY_A": "Trouble Staying Asleep",
+    "SLPFLL_A": "Trouble Falling Asleep",
+    "SLPREST_A": "Days Waking Feeling Rested",
+    "SLPHOURS_A": "Hours of Sleep in a 24 Hour Period",
+    "SEX_A": "Sex",
+    "AGEP_A": "Age",
+    "EDUCP_A": "Education Level"
+}
+
 def labelize(col):
     return col.replace("_", " ").title()
 
@@ -347,10 +397,8 @@ st.header("Notes, assumptions, and reproducibility")
 st.markdown("""
 - **Exploratory:** this tool is descriptive and educational. It does not link records across datasets and is **not** for diagnosis.
 - **Assumptions:** data cleaning / definitions come from the repo. Check the `data/clean/` scripts for precise preprocessing (e.g., whether sleep hours are rounded, how missingness was handled).
-- **How to improve:** if you want to compare via a common stratification (e.g., age bins), create the same `age_group` binning in both datasets and then re-run with those groupings.
 - **Reproducibility:** all aggregation steps are visible in the app. For exact code integration, consider exporting the grouped DF to CSV and including the tidy pipeline in your repo's `notebooks/` folder.
 """)
 
-st.success("Done — try different metric pairings and groupings to explore conceptual relationships. If you paste the `head()` / column names from your CSVs I can adapt this further to show label mapping and nicer human-friendly names automatically.")
 
 
