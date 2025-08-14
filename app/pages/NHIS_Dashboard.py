@@ -17,6 +17,27 @@ nhisVarDesc = {
     'EDUCP_A': 'Educational level of sample adult',
 }
 
+# --- Education Level Labels ---
+education_labels = {
+    0: 'Never attended/kindergarten only',
+    1: 'Grade 1-11',
+    2: '12th grade, no diploma',
+    3: 'GED or equivalent',
+    4: 'High School Graduate',
+    5: 'Some college, no degree',
+    6: 'Associate degree: occupational/technical/vocational',
+    7: 'Associate degree: academic program',
+    8: "Bachelor's degree",
+    9: "Master's degree",
+    10: 'Professional School or Doctoral degree'
+}
+
+# --- Sex Labels ---
+sex_labels = {
+    1: 'Male',
+    2: 'Female'
+}
+
 # --- Page Setup ---
 st.set_page_config(
     page_title="Sleep Insights",
@@ -89,6 +110,31 @@ STYLE_BLOCK = r"""
         color: inherit;
     }
 
+    /* Smaller text for multiselect options */
+    .stMultiSelect > div > div > div > div {
+        font-size: 0.7rem !important;
+    }
+
+    /* Smaller text for multiselect selected items */
+    .stMultiSelect [data-baseweb="tag"] {
+        font-size: 0.65rem !important;
+        height: auto !important;
+        min-height: 1.3rem !important;
+        padding: 0.1rem 0.3rem !important;
+    }
+
+    /* Make multiselect dropdown text smaller */
+    .stMultiSelect [role="option"] {
+        font-size: 0.7rem !important;
+        padding: 0.2rem 0.4rem !important;
+        line-height: 1.2 !important;
+    }
+
+    /* Smaller text for multiselect placeholder and input */
+    .stMultiSelect input {
+        font-size: 0.7rem !important;
+    }
+
     /* Force theme-aware colors using Streamlit's CSS variables if available */
     @media (prefers-color-scheme: dark) {
         .variable-desc {
@@ -133,7 +179,14 @@ st.markdown("---")
 # --- Load Data ---
 @st.cache_data
 def load_sleep_data():
-    return pd.read_csv("data/clean/nhis_sleep_demo_clean.csv")
+    df = pd.read_csv("data/clean/nhis_sleep_demo_clean.csv")
+
+    # Filter out refused, not ascertained, and don't know responses for education
+    # Assuming these are coded as 97, 98, 99 or similar high values
+    # Keep only education levels 0-10 (valid responses)
+    df = df[df['EDUCP_A'].isin(range(0, 11))]
+
+    return df
 
 
 df = load_sleep_data()
@@ -152,26 +205,64 @@ with col1:
     )
 
 with col2:
-    sex_filter = st.multiselect(
-        "Sex (encoded)",
-        options=sorted(df["SEX_A"].dropna().unique()),
-        default=sorted(df["SEX_A"].dropna().unique()),
+    # Get available sex codes from data and create display options
+    available_sex_codes = sorted(df["SEX_A"].dropna().unique())
+
+    # Create display options for multiselect (show labels but return codes)
+    sex_options = []
+    for code in available_sex_codes:
+        if code in sex_labels:
+            sex_options.append({
+                'code': int(code),
+                'label': f"{int(code)}: {sex_labels[int(code)]}"
+            })
+
+    # Use selectbox with formatted options
+    selected_sex_labels = st.multiselect(
+        "Sex",
+        options=[opt['label'] for opt in sex_options],
+        default=[opt['label'] for opt in sex_options],
         key="sex_multiselect"
     )
 
+    # Convert selected labels back to codes for filtering
+    selected_sex_codes = []
+    for label in selected_sex_labels:
+        code = int(label.split(':')[0])
+        selected_sex_codes.append(code)
+
 with col3:
-    edu_filter = st.multiselect(
-        "Education Level (encoded)",
-        options=sorted(df["EDUCP_A"].dropna().unique()),
-        default=sorted(df["EDUCP_A"].dropna().unique()),
+    # Get available education levels from data and create display options
+    available_edu_codes = sorted(df["EDUCP_A"].dropna().unique())
+
+    # Create display options for multiselect (show labels but return codes)
+    edu_options = []
+    for code in available_edu_codes:
+        if code in education_labels:
+            edu_options.append({
+                'code': int(code),
+                'label': f"{int(code)}: {education_labels[int(code)]}"
+            })
+
+    # Use selectbox with formatted options
+    selected_edu_labels = st.multiselect(
+        "Education Level",
+        options=[opt['label'] for opt in edu_options],
+        default=[opt['label'] for opt in edu_options],
         key="edu_multiselect"
     )
+
+    # Convert selected labels back to codes for filtering
+    selected_edu_codes = []
+    for label in selected_edu_labels:
+        code = int(label.split(':')[0])
+        selected_edu_codes.append(code)
 
 # --- Apply Filters ---
 filtered_df = df[
     (df["AGEP_A"].between(age_filter[0], age_filter[1])) &
-    (df["SEX_A"].isin(sex_filter)) &
-    (df["EDUCP_A"].isin(edu_filter))
+    (df["SEX_A"].isin(selected_sex_codes)) &
+    (df["EDUCP_A"].isin(selected_edu_codes))
     ]
 
 # --- Frequency label map ---
@@ -189,7 +280,13 @@ with tab1:
     col1, col2 = st.columns([2, 1])
     with col1:
         st.markdown("#### Filtered Data Preview")
-        st.dataframe(filtered_df.head(), use_container_width=True)
+        # Add education and sex labels to display dataframe
+        display_df = filtered_df.copy()
+        display_df['Education_Label'] = display_df['EDUCP_A'].map(education_labels)
+        display_df['Sex_Label'] = display_df['SEX_A'].map(sex_labels)
+        st.dataframe(
+            display_df[['AGEP_A', 'Sex_Label', 'Education_Label', 'SLPHOURS_A', 'SLPFLL_A', 'SLPSTY_A']].head(),
+            use_container_width=True)
 
     with col2:
         st.markdown("#### Summary Stats")
@@ -203,11 +300,16 @@ with tab1:
 with tab2:
     st.markdown("### 📊 Interactive Visualizations")
 
+    # Add education labels to visualization dataframe
+    viz_df_full = filtered_df.copy()
+    viz_df_full["Education_Label"] = viz_df_full["EDUCP_A"].map(education_labels)
+    viz_df_full["Sex_Label"] = viz_df_full["SEX_A"].map(sex_labels)
+
     # --- Correlation Matrix (Altair) excluding SLPMEDINTRO_A ---
     st.markdown("#### 🔗 Correlation Matrix")
     # Select columns for correlation, excluding 'SLPMEDINTRO_A'
-    corr_cols = [col for col in filtered_df.select_dtypes(include='number').columns if col != 'SLPMEDINTRO_A']
-    corr = filtered_df[corr_cols].corr()
+    corr_cols = [col for col in viz_df_full.select_dtypes(include='number').columns if col != 'SLPMEDINTRO_A']
+    corr = viz_df_full[corr_cols].corr()
     corr_df = corr.reset_index().melt(id_vars='index')
     corr_df.columns = ['Variable 1', 'Variable 2', 'Correlation']
 
@@ -233,7 +335,7 @@ with tab2:
 
     # 1. Distribution of Sleep Hours
     st.markdown("#### ⏳ Distribution of Sleep Hours")
-    hist = alt.Chart(filtered_df).mark_bar(opacity=0.7).encode(
+    hist = alt.Chart(viz_df_full).mark_bar(opacity=0.7).encode(
         alt.X("SLPHOURS_A:Q", bin=alt.Bin(maxbins=20), title="Sleep Hours (per 24 hrs)"),
         alt.Y("count()", title="Number of Respondents"),
         tooltip=["count()"]
@@ -242,10 +344,10 @@ with tab2:
 
     # 2. Sleep Hours vs. Age
     st.markdown("#### 👤 Sleep Hours vs. Age")
-    scatter = alt.Chart(filtered_df).mark_circle(size=60, opacity=0.5).encode(
+    scatter = alt.Chart(viz_df_full).mark_circle(size=60, opacity=0.5).encode(
         x=alt.X("AGEP_A:Q", title="Age"),
         y=alt.Y("SLPHOURS_A:Q", title="Sleep Hours"),
-        tooltip=["AGEP_A", "SLPHOURS_A"]
+        tooltip=["AGEP_A", "SLPHOURS_A", "Education_Label", "Sex_Label"]
     ).properties(width=600, height=400)
     regression = scatter.transform_regression("AGEP_A", "SLPHOURS_A").mark_line(color="red")
     st.altair_chart(scatter + regression, use_container_width=True)
@@ -270,8 +372,8 @@ with tab2:
             return "70+"
 
 
-    # Add age groups to filtered dataframe
-    viz_df = filtered_df.copy()
+    # Add age groups and education labels to filtered dataframe
+    viz_df = viz_df_full.copy()
     viz_df["Age_Group"] = viz_df["AGEP_A"].apply(create_age_groups)
 
     # Create sleep aid usage data
@@ -370,7 +472,12 @@ with tab2:
 # --- Tab 3: Export ---
 with tab3:
     st.markdown("### 💾 Export Filtered Data")
-    csv = filtered_df.to_csv(index=False).encode("utf-8")
+    # Add education and sex labels to export dataframe
+    export_df = filtered_df.copy()
+    export_df['Education_Label'] = export_df['EDUCP_A'].map(education_labels)
+    export_df['Sex_Label'] = export_df['SEX_A'].map(sex_labels)
+
+    csv = export_df.to_csv(index=False).encode("utf-8")
     st.download_button(
         label="📥 Download CSV",
         data=csv,
