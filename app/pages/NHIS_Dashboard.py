@@ -110,6 +110,25 @@ st.markdown("""
     </p>
 """, unsafe_allow_html=True)
 
+# --- Variable Descriptions Section (Moved to top) ---
+st.markdown("### 📚 Variable Descriptions")
+
+with st.expander("Click to see variable definitions", expanded=False):
+    st.markdown("""
+    <div class="variable-desc">
+        <h4>📖 Variable Dictionary</h4>
+    </div>
+    """, unsafe_allow_html=True)
+
+    for var_code, description in nhisVarDesc.items():
+        st.markdown(f"""
+        <div class="variable-item">
+            <span class="variable-code">{var_code}:</span> {description}
+        </div>
+        """, unsafe_allow_html=True)
+
+st.markdown("---")
+
 
 # --- Load Data ---
 @st.cache_data
@@ -183,25 +202,6 @@ with tab1:
 # --- Tab 2: Visualizations ---
 with tab2:
     st.markdown("### 📊 Interactive Visualizations")
-
-    # --- Column Descriptions Section ---
-    st.markdown("#### 📚 Column Descriptions")
-
-    with st.expander("Click to see variable definitions", expanded=False):
-        st.markdown("""
-        <div class="variable-desc">
-            <h4>📖 Variable Dictionary</h4>
-        </div>
-        """, unsafe_allow_html=True)
-
-        for var_code, description in nhisVarDesc.items():
-            st.markdown(f"""
-            <div class="variable-item">
-                <span class="variable-code">{var_code}:</span> {description}
-            </div>
-            """, unsafe_allow_html=True)
-
-    st.markdown("---")
 
     # --- Correlation Matrix (Altair) excluding SLPMEDINTRO_A ---
     st.markdown("#### 🔗 Correlation Matrix")
@@ -380,8 +380,3 @@ with tab3:
 
     st.markdown("### 📝 Notes")
     st.info("Sleep frequency variables are coded as: 1 = Never, 2 = Rarely, 3 = Sometimes, 4 = Often, 5 = Always.")
-
-# --- Footer ---
-st.markdown(
-    "<hr class='footer'><div class='footer'>😴 Built with Streamlit • Data Source: NHIS • © 2025 Your Name</div>",
-    unsafe_allow_html=True)
