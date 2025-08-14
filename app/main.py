@@ -134,45 +134,47 @@ with st.expander("Tap to see key studies that inform our choices", expanded=Fals
     st.markdown(
         "- Barry et al., 2007, *Clinical Neurophysiology*: eyes-closed vs eyes-open spectral differences  \n"
         "  https://www.sciencedirect.com/science/article/abs/pii/S1388245707004002  \n"
-        "  *Relevance:* supports alpha increases with eyes closed used in our EEG Viewer and Dashboard.\n"
+        "  *Relevance:* supports alpha increases with eyes closed used in EEG visuals.\n"
         "- Cajochen et al., 1995, *Sleep*: theta/alpha power rises across sustained wakefulness  \n"
         "  https://pubmed.ncbi.nlm.nih.gov/8746397/  \n"
-        "  *Relevance:* motivates comparing theta in NS vs SD and linking to restfulness.\n"
+        "  *Relevance:* informs NS vs SD comparisons for theta.\n"
         "- Berger, 1929 (historical): first human EEG and alpha suppression with eye opening  \n"
         "  Overview: https://pmc.ncbi.nlm.nih.gov/articles/PMC3740477/  \n"
-        "  *Relevance:* context for why alpha is a central EEG feature."
+        "  *Relevance:* context for alpha as a key EEG feature."
     )
 
-    st.markdown("**Attention (PVT – Psychomotor Vigilance Test)**")
+    st.markdown("**Attention (PVT)**")
     st.markdown(
-        "- Dinges & Powell, 1985, *Behavior Research Methods*: classic portable PVT  \n"
+        "- Dinges & Powell, 1985, *Behavior Research Methods, Instruments, & Computers*: classic portable PVT  \n"
         "  https://link.springer.com/article/10.3758/BF03200977  \n"
         "  *Relevance:* underpins our PVT metrics and reaction-time demo.\n"
-        "- Lim & Dinges, 2010, *Psychological Bulletin*: meta-analysis of neurobehavioral effects  \n"
+        "- Lim & Dinges, 2010, *Psychological Bulletin*: review/meta-analysis of neurobehavioral effects  \n"
         "  https://pmc.ncbi.nlm.nih.gov/articles/PMC3290659/  \n"
-        "  *Relevance:* explains slower RT and lapses with sleep loss.\n"
-        "- Basner & Dinges, 2011: PVT sensitivity and brief versions  \n"
-        "  Sleep parameters: https://pubmed.ncbi.nlm.nih.gov/21532951/  \n"
-        "  PVT-B (3‑min) validity (free): https://pubmed.ncbi.nlm.nih.gov/22025811/  \n"
-        "  *Relevance:* supports concise PVT summaries in the dashboard."
+        "  *Relevance:* explains slower reaction times and lapses after sleep loss.\n"
+        "- Basner & Dinges, 2011, *Sleep*: maximizing PVT sensitivity to sleep loss  \n"
+        "  https://pubmed.ncbi.nlm.nih.gov/21532951/  \n"
+        "  *Relevance:* supports selection of concise PVT summaries.\n"
+        "- Basner, Mollicone & Dinges, 2011, *Acta Astronautica*: 3‑minute PVT‑B validity (free full text)  \n"
+        "  https://pubmed.ncbi.nlm.nih.gov/22025811/  \n"
+        "  *Relevance:* justifies brief PVT variants."
     )
 
     st.markdown("**Mood (PANAS)**")
     st.markdown(
-        "- Watson, Clark & Tellegen, 1988, *J Pers Soc Psychol*: PANAS development  \n"
+        "- Watson, Clark & Tellegen, 1988, *Journal of Personality and Social Psychology*: PANAS development  \n"
         "  https://pubmed.ncbi.nlm.nih.gov/3397865/  \n"
-        "  *Relevance:* validates Positive and Negative Affect scales shown in the dashboard.\n"
-        "- Pilcher & Huffcutt, 1996, *Sleep*: meta-analysis of sleep deprivation and performance/mood  \n"
+        "  *Relevance:* validates Positive and Negative Affect scales used in the dashboard.\n"
+        "- Pilcher & Huffcutt, 1996, *Sleep*: meta-analysis of sleep deprivation effects on performance and mood  \n"
         "  https://pubmed.ncbi.nlm.nih.gov/8776790/  \n"
         "  *Relevance:* supports interpreting PANAS differences between NS and SD."
     )
 
     st.markdown("**Sleep questionnaires and self-report**")
     st.markdown(
-        "- Buysse et al., 1989, *Psychiatry Research*: PSQI validation  \n"
+        "- Buysse et al., 1989, *Psychiatry Research*: Pittsburgh Sleep Quality Index (PSQI) validation  \n"
         "  https://pubmed.ncbi.nlm.nih.gov/2748771/  \n"
-        "  *Relevance:* maps NHIS items to validated sleep-quality constructs.\n"
-        "- Lauderdale et al., 2008, *Epidemiology*: self‑reported vs actigraph-measured sleep duration  \n"
+        "  *Relevance:* connects NHIS-style items to validated sleep-quality constructs.\n"
+        "- Lauderdale et al., 2008, *Epidemiology*: self-reported vs actigraph-measured sleep duration  \n"
         "  https://journals.lww.com/epidem/Fulltext/2008/11000/Self_Reported_and_Measured_Sleep_Duration__How.15.aspx  \n"
         "  *Relevance:* clarifies why survey sleep can differ from objective measures."
     )
